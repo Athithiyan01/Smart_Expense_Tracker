@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/admin-layout}">
+<head>
+    <title>System Reports</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #fafafa;
+        }
+        .card {
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+        }
+        .card-header {
+            background: #f8f9fa;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        h5 {
+            margin: 0;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+
+<div layout:fragment="content" class="container-fluid mt-3">
+
+    <div class="row g-3">
+        <!-- User Growth -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">User Growth</div>
+                <div class="card-body">
+                    <canvas id="userGrowthChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expense Trends -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">Expense Trends</div>
+                <div class="card-body">
+                    <canvas id="expenseTrendsChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mt-1">
+        <!-- Top Categories -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">Top Categories</div>
+                <div class="card-body">
+                    <canvas id="topCategoriesChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Health -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">System Health</div>
+                <div class="card-body">
+                    <div th:if="${reports != null && reports.systemHealth != null}">
+                        <div th:each="health : ${reports.systemHealth}" class="d-flex justify-content-between border-bottom py-1">
+                            <span th:text="${health.key}">Metric</span>
+                            <span th:text="${health.value}" class="text-muted">Value</span>
+                        </div>
+                    </div>
+                    <div th:if="${reports == null || reports.systemHealth == null}">
+                        <p class="text-muted mb-0">No system health data available</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Section -->
+    <div class="card mt-3">
+        <div class="card-header">Export Reports</div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4 text-center">
+                    <h6>Users</h6>
+                    <a th:href="@{/admin/reports/export(type=users)}" class="btn btn-sm btn-outline-primary">Download CSV</a>
+                </div>
+                <div class="col-md-4 text-center">
+                    <h6>Expenses</h6>
+                    <a th:href="@{/admin/reports/export(type=expenses)}" class="btn btn-sm btn-outline-success">Download CSV</a>
+                </div>
+                <div class="col-md-4 text-center">
+                    <h6>Budgets</h6>
+                    <a th:href="@{/admin/reports/export(type=budgets)}" class="btn btn-sm btn-outline-info">Download CSV</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Charts -->
+    <div class="card mt-3">
+        <div class="card-header">Monthly Statistics</div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <canvas id="monthlyUsersChart" height="200"></canvas>
+                </div>
+                <div class="col-md-6">
+                    <canvas id="monthlyExpensesChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script th:inline="javascript">
+    const userGrowthData = /*[[${reports?.userGrowth}]]*/ {};
+    const expenseData = /*[[${reports?.expenseData}]]*/ {};
+    const categoryData = /*[[${reports?.categoryData}]]*/ {};
+
+    new Chart(document.getElementById('userGrowthChart'), {
+        type: 'line',
+        data: {
+            labels: userGrowthData.labels || ['Jan','Feb','Mar','Apr','May','Jun'],
+            datasets: [{
+                label: 'Users',
+                data: userGrowthData.data || [10,15,25,30,45,60],
+                borderColor: '#007bff',
+                fill: false
+            }]
+        }
+    });
+
+    new Chart(document.getElementById('expenseTrendsChart'), {
+        type: 'bar',
+        data: {
+            labels: expenseData.labels || ['Jan','Feb','Mar','Apr','May','Jun'],
+            datasets: [{
+                label: 'Expenses',
+                data: expenseData.data || [1200,1900,3000,5000,2300,3200],
+                backgroundColor: '#20c997'
+            }]
+        }
+    });
+
+    new Chart(document.getElementById('topCategoriesChart'), {
+        type: 'doughnut',
+        data: {
+            labels: categoryData.labels || ['Food','Transport','Shopping','Bills','Entertainment'],
+            datasets: [{
+                data: categoryData.data || [30,25,20,15,10],
+                backgroundColor: ['#dc3545','#007bff','#ffc107','#20c997','#6f42c1']
+            }]
+        }
+    });
+
+    new Chart(document.getElementById('monthlyUsersChart'), {
+        type: 'line',
+        data: {
+            labels: ['Jan','Feb','Mar','Apr','May','Jun'],
+            datasets: [{
+                label: 'New Users',
+                data: [5,10,8,12,15,20],
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0,123,255,0.1)',
+                fill: true
+            }]
+        }
+    });
+
+    new Chart(document.getElementById('monthlyExpensesChart'), {
+        type: 'line',
+        data: {
+            labels: ['Jan','Feb','Mar','Apr','May','Jun'],
+            datasets: [{
+                label: 'Expenses',
+                data: [5000,7500,6200,8900,12000,9800],
+                borderColor: '#20c997',
+                backgroundColor: 'rgba(32,201,151,0.1)',
+                fill: true
+            }]
+        }
+    });
+</script>
+</html>

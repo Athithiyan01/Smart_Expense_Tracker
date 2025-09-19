@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Expenses - Expense Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .main-header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            color: white;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card {
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            border: none;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        
+        .table-container {
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        .table {
+            margin-bottom: 0;
+        }
+        
+        .table th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            border: none;
+            padding: 20px 15px;
+        }
+        
+        .table td {
+            padding: 20px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid #f8f9fa;
+        }
+        
+        .table tbody tr {
+            transition: all 0.3s ease;
+        }
+        
+        .table tbody tr:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .expense-amount {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .expense-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+        
+        .expense-description {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+        
+        .category-badge {
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+        
+        .type-badge {
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        
+        .btn {
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            padding: 12px 25px;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-outline-primary, .btn-outline-danger {
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+        }
+        
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+            color: #718096;
+        }
+        
+        .empty-icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            color: white;
+            font-size: 48px;
+            opacity: 0.8;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #718096;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        .search-filter-bar {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            padding: 10px 15px;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        @media (max-width: 768px) {
+            .table-responsive {
+                border-radius: 15px;
+            }
+            
+            .main-header {
+                text-align: center;
+                padding: 20px;
+            }
+            
+            .main-header .d-flex {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid px-4 py-4">
+        <!-- Header Section -->
+        <div class="main-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="mb-2">
+                        <i class="fas fa-wallet me-3"></i>
+                        Your Expenses
+                    </h1>
+                    <p class="mb-0 opacity-90">Track and manage your financial transactions</p>
+                </div>
+                <a href="#" class="btn btn-primary btn-lg" onclick="addNewExpense()">
+                    <i class="fas fa-plus me-2"></i>
+                    Add New Expense
+                </a>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3 col-6 mb-3">
+                <div class="stats-card">
+                    <div class="stat-item">
+                        <div class="stat-value text-danger" id="totalExpenses">₹ 12,450</div>
+                        <div class="stat-label">Total Expenses</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="stats-card">
+                    <div class="stat-item">
+                        <div class="stat-value text-success" id="totalIncome">₹ 45,000</div>
+                        <div class="stat-label">Total Income</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="stats-card">
+                    <div class="stat-item">
+                        <div class="stat-value text-primary" id="balance">₹ 32,550</div>
+                        <div class="stat-label">Current Balance</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="stats-card">
+                    <div class="stat-item">
+                        <div class="stat-value text-info" id="transactionCount">48</div>
+                        <div class="stat-label">Transactions</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filter Bar -->
+        <div class="search-filter-bar">
+            <div class="row align-items-center">
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="fas fa-search text-muted"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0" placeholder="Search transactions..." id="searchInput">
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3 mb-md-0">
+                    <select class="form-select" id="categoryFilter">
+                        <option value="">All Categories</option>
+                        <option value="Food">Food & Dining</option>
+                        <option value="Transport">Transport</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Bills">Bills & Utilities</option>
+                        <option value="Healthcare">Healthcare</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3 mb-md-0">
+                    <select class="form-select" id="typeFilter">
+                        <option value="">All Types</option>
+                        <option value="EXPENSE">Expenses</option>
+                        <option value="INCOME">Income</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
+                        <i class="fas fa-times me-2"></i>Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expenses Table -->
+        <div class="card">
+            <div class="card-body p-0">
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <div class="empty-icon">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <h4>No expenses found</h4>
+                    <p class="mb-4">Start tracking your expenses by adding your first transaction</p>
+                    <button class="btn btn-primary" onclick="addNewExpense()">
+                        <i class="fas fa-plus me-2"></i>Add First Expense
+                    </button>
+                </div>
+
+                <div id="expenseTable" class="table-container">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th><i class="fas fa-calendar me-2"></i>Date</th>
+                                    <th><i class="fas fa-tag me-2"></i>Transaction</th>
+                                    <th><i class="fas fa-list me-2"></i>Category</th>
+                                    <th><i class="fas fa-exchange-alt me-2"></i>Type</th>
+                                    <th><i class="fas fa-rupee-sign me-2"></i>Amount</th>
+                                    <th><i class="fas fa-cog me-2"></i>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="expenseTableBody">
+                                <!-- Sample data - would be populated dynamically -->
+                                <tr>
+                                    <td>
+                                        <strong>Sep 18, 2025</strong>
+                                        <small class="d-block text-muted">Today</small>
+                                    </td>
+                                    <td>
+                                        <div class="expense-title">Lunch at Restaurant</div>
+                                        <div class="expense-description">Had lunch with team at local restaurant</div>
+                                    </td>
+                                    <td>
+                                        <span class="category-badge bg-warning text-dark">🍽️ Food</span>
+                                    </td>
+                                    <td>
+                                        <span class="type-badge bg-danger text-white">
+                                            <i class="fas fa-minus-circle me-1"></i>EXPENSE
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="expense-amount text-danger">-₹ 450.00</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" onclick="editExpense(1)">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger" onclick="deleteExpense(1, 'Lunch at Restaurant')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Sep 17, 2025</strong>
+                                        <small class="d-block text-muted">Yesterday</small>
+                                    </td>
+                                    <td>
+                                        <div class="expense-title">Uber Ride</div>
+                                        <div class="expense-description">Office to home commute</div>
+                                    </td>
+                                    <td>
+                                        <span class="category-badge bg-info text-white">🚗 Transport</span>
+                                    </td>
+                                    <td>
+                                        <span class="type-badge bg-danger text-white">
+                                            <i class="fas fa-minus-circle me-1"></i>EXPENSE
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="expense-amount text-danger">-₹ 120.00</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" onclick="editExpense(2)">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger" onclick="deleteExpense(2, 'Uber Ride')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Sep 17, 2025</strong>
+                                        <small class="d-block text-muted">Yesterday</small>
+                                    </td>
+                                    <td>
+                                        <div class="expense-title">Salary Credit</div>
+                                        <div class="expense-description">Monthly salary payment</div>
+                                    </td>
+                                    <td>
+                                        <span class="category-badge bg-secondary text-white">💼 Income</span>
+                                    </td>
+                                    <td>
+                                        <span class="type-badge bg-success text-white">
+                                            <i class="fas fa-plus-circle me-1"></i>INCOME
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="expense-amount text-success">+₹ 45,000.00</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" onclick="editExpense(3)">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger" onclick="deleteExpense(3, 'Salary Credit')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Sep 16, 2025</strong>
+                                        <small class="d-block text-muted">2 days ago</small>
+                                    </td>
+                                    <td>
+                                        <div class="expense-title">Movie Tickets</div>
+                                        <div class="expense-description">Weekend movie with friends</div>
+                                    </td>
+                                    <td>
+                                        <span class="category-badge bg-purple text-white">🎬 Entertainment</span>
+                                    </td>
+                                    <td>
+                                        <span class="type-badge bg-danger text-white">
+                                            <i class="fas fa-minus-circle me-1"></i>EXPENSE
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="expense-amount text-danger">-₹ 800.00</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" onclick="editExpense(4)">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger" onclick="deleteExpense(4, 'Movie Tickets')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Sep 15, 2025</strong>
+                                        <small class="d-block text-muted">3 days ago</small>
+                                    </td>
+                                    <td>
+                                        <div class="expense-title">Grocery Shopping</div>
+                                        <div class="expense-description">Weekly grocery supplies</div>
+                                    </td>
+                                    <td>
+                                        <span class="category-badge bg-success text-white">🛍️ Shopping</span>
+                                    </td>
+                                    <td>
+                                        <span class="type-badge bg-danger text-white">
+                                            <i class="fas fa-minus-circle me-1"></i>EXPENSE
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="expense-amount text-danger">-₹ 2,150.00</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" onclick="editExpense(5)">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger" onclick="deleteExpense(5, 'Grocery Shopping')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <div class="text-muted">
+                Showing <strong>1-5</strong> of <strong>48</strong> transactions
+            </div>
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#"><i class="fas fa-chevron-left"></i></a>
+                    </li>
+                    <li class="page-item active">
+                        <a class="page-link" href="#">1</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">2</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">3</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Sample data for demonstration
+        const expenses = [
+            {
+                id: 1,
+                date: '2025-09-18',
+                title: 'Lunch at Restaurant',
+                description: 'Had lunch with team at local restaurant',
+                category: 'Food',
+                type: 'EXPENSE',
+                amount: 450
+            },
+            {
+                id: 2,
+                date: '2025-09-17',
+                title: 'Uber Ride',
+                description: 'Office to home commute',
+                category: 'Transport',
+                type: 'EXPENSE',
+                amount: 120
+            },
+            // Add more sample data...
+        ];
+
+        // Search and filter functionality
+        document.getElementById('searchInput').addEventListener('input', filterTransactions);
+        document.getElementById('categoryFilter').addEventListener('change', filterTransactions);
+        document.getElementById('typeFilter').addEventListener('change', filterTransactions);
+
+        function filterTransactions() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const typeFilter = document.getElementById('typeFilter').value;
+            
+            const rows = document.querySelectorAll('#expenseTableBody tr');
+            let visibleCount = 0;
+            
+            rows.forEach(row => {
+                const title = row.querySelector('.expense-title').textContent.toLowerCase();
+                const description = row.querySelector('.expense-description').textContent.toLowerCase();
+                const category = row.querySelector('.category-badge').textContent.toLowerCase();
+                const type = row.querySelector('.type-badge').textContent.includes('EXPENSE') ? 'EXPENSE' : 'INCOME';
+                
+                const matchesSearch = title.includes(searchTerm) || description.includes(searchTerm);
+                const matchesCategory = !categoryFilter || category.includes(categoryFilter.toLowerCase());
+                const matchesType = !typeFilter || type === typeFilter;
+                
+                if (matchesSearch && matchesCategory && matchesType) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            // Show/hide empty state
+            const emptyState = document.getElementById('emptyState');
+            const expenseTable = document.getElementById('expenseTable');
+            
+            if (visibleCount === 0) {
+                emptyState.style.display = 'block';
+                expenseTable.style.display = 'none';
+            } else {
+                emptyState.style.display = 'none';
+                expenseTable.style.display = 'block';
+            }
+        }
+
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('typeFilter').value = '';
+            filterTransactions();
+        }
+
+        function addNewExpense() {
+            alert('Redirecting to Add New Expense page...');
+            // In a real app: window.location.href = '/expenses/new';
+        }
+
+        function editExpense(id) {
+            alert(`Editing expense with ID: ${id}`);
+            // In a real app: window.location.href = `/expenses/${id}/edit`;
+        }
+
+        function deleteExpense(id, title) {
+            if (confirm(`Are you sure you want to delete "${title}"?`)) {
+                alert(`Deleted expense: ${title}`);
+                // In a real app, make DELETE request to backend
+                // Then remove row from DOM
+                document.querySelector(`#expenseTableBody tr:nth-child(${id})`).remove();
+                filterTransactions(); // Recheck empty state
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up any initial states
+            console.log('Expense list loaded');
+        });
+    </script>
+    
+    <style>
+        .bg-purple {
+            background-color: #8b5cf6 !important;
+        }
+        
+        .page-link {
+            border-radius: 8px;
+            margin: 0 2px;
+            border: none;
+            color: #667eea;
+        }
+        
+        .page-item.active .page-link {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+        }
+        
+        .pagination-sm .page-link {
+            padding: 8px 12px;
+        }
+    </style>
+</body>
+</html>

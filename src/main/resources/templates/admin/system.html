@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>System Information</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .card {
+            border: none;
+            border-radius: 1rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .card-header {
+            font-weight: 600;
+            background: linear-gradient(135deg, #4e73df, #224abe);
+            color: #fff;
+            border-radius: 1rem 1rem 0 0 !important;
+        }
+
+        .section-title {
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #224abe;
+        }
+
+        .progress {
+            height: 22px;
+            border-radius: 12px;
+            background: #e9ecef;
+        }
+
+        .progress-bar {
+            font-weight: 600;
+        }
+
+        .btn {
+            border-radius: 0.6rem;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body class="container py-4">
+
+    <h2 class="section-title"><i class="fa-solid fa-chart-line me-2"></i>System Statistics</h2>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="stat-value" th:text="${totalUsers}">6</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="stat-value" th:text="${totalExpenses}">0</div>
+                    <div class="stat-label">Total Expenses</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="stat-value" th:text="${totalBudgets}">12</div>
+                    <div class="stat-label">Total Budgets</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="stat-value" th:text="${cpuCores}">8</div>
+                    <div class="stat-label">CPU Cores</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="section-title"><i class="fa-solid fa-memory me-2"></i>Memory Usage</h2>
+    <div class="card mb-4">
+        <div class="card-body">
+            <p><strong>Max Memory:</strong> <span th:text="${maxMemory}">4008</span> MB</p>
+            <p><strong>Total Memory:</strong> <span th:text="${totalMemory}">128</span> MB</p>
+            <p><strong>Used Memory:</strong> <span th:text="${usedMemory}">82</span> MB</p>
+            <p><strong>Free Memory:</strong> <span th:text="${freeMemory}">45</span> MB</p>
+            <p><strong>Server Time:</strong> <span th:text="${serverTime}">2025-09-18 21:36:32</span></p>
+
+            <!-- Progress bar -->
+            <div class="progress mt-3">
+                <div class="progress-bar bg-success"
+                     role="progressbar"
+                     th:style="'width:' + ${memoryUsagePercent} + '%'"
+                     th:text="${memoryUsagePercent} + '%'">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="section-title"><i class="fa-solid fa-tools me-2"></i>System Maintenance</h2>
+    <div class="card mb-3">
+        <div class="card-header">System Cleanup</div>
+        <div class="card-body">
+            <p>Clean up expired tokens, old verification links, and temporary data</p>
+            <button class="btn btn-danger"><i class="fa-solid fa-broom me-2"></i>Run Cleanup</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">Refresh System Info</div>
+        <div class="card-body">
+            <p>Refresh current system information and statistics</p>
+            <button class="btn btn-primary"><i class="fa-solid fa-rotate me-2"></i>Refresh</button>
+        </div>
+    </div>
+
+</body>
+</html>

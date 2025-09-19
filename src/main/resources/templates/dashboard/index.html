@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartSpend - Modern Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --danger-gradient: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            --dark-bg: #1a1d29;
+            --card-bg: #252836;
+            --text-light: #8b92b2;
+            --text-white: #ffffff;
+            --border-color: #2f3349;
+            --shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .floating-element {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-element:nth-child(1) {
+            width: 80px; height: 80px; top: 10%; left: 10%; animation-delay: 0s;
+        }
+        .floating-element:nth-child(2) {
+            width: 60px; height: 60px; top: 20%; right: 15%; animation-delay: 2s;
+        }
+        .floating-element:nth-child(3) {
+            width: 100px; height: 100px; bottom: 20%; left: 15%; animation-delay: 4s;
+        }
+        .floating-element:nth-child(4) {
+            width: 70px; height: 70px; bottom: 10%; right: 10%; animation-delay: 1s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-20px) rotate(120deg); }
+            66% { transform: translateY(10px) rotate(240deg); }
+        }
+
+        .dashboard-container {
+            background: var(--dark-bg);
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar {
+            background: var(--card-bg);
+            border-right: 1px solid var(--border-color);
+            min-height: 100vh;
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            z-index: 1000;
+            transition: left 0.3s ease;
+        }
+
+        .sidebar.show { left: 0; }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .sidebar-overlay.show { display: block; }
+
+        .brand-logo {
+            color: var(--text-white);
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-link {
+            color: var(--text-light);
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            transition: all 0.3s ease;
+            border: none;
+            background: none;
+            text-align: left;
+            width: 100%;
+            text-decoration: none;
+        }
+
+        .nav-link:hover {
+            color: var(--text-white);
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-link.active {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .mobile-header {
+            display: none;
+            background: var(--card-bg);
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .main-content {
+            margin-left: 0;
+            padding: 2rem;
+            min-height: 100vh;
+            color: var(--text-white);
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .welcome-text {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .stats-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+        }
+
+        .stats-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .primary-icon { background: var(--primary-gradient); }
+        .success-icon { background: var(--success-gradient); }
+        .warning-icon { background: var(--warning-gradient); }
+        .danger-icon { background: var(--danger-gradient); }
+
+        .chart-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            height: 400px;
+        }
+
+        .expense-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .expense-item:hover {
+            transform: translateX(5px);
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-gradient {
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            color: white;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-header { display: block; }
+            .main-content { margin-left: 0; padding: 1rem; }
+            .sidebar { width: 280px; }
+        }
+
+        @media (min-width: 769px) {
+            .sidebar { position: relative; left: 0; }
+            .main-content { margin-left: 0; }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-elements">
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+    </div>
+
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <div class="dashboard-container">
+        <!-- Mobile Header -->
+        <div class="mobile-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <button class="btn btn-outline-light" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h5 class="brand-logo mb-0">SmartSpend</h5>
+                <span class="welcome-text small" th:text="'Welcome, ' + ${username} + '!'">Welcome, User!</span>
+            </div>
+        </div>
+
+        <div class="row g-0">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2">
+                <nav class="sidebar">
+                    <div class="p-3">
+                        <h3 class="brand-logo">SmartSpend</h3>
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link active" th:href="@{/dashboard}">
+                                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/expenses}">
+                                    <i class="fas fa-money-bill-wave me-2"></i> Expenses
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/budgets}">
+                                    <i class="fas fa-chart-pie me-2"></i> Budgets
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/reports}">
+                                    <i class="fas fa-chart-bar me-2"></i> Reports
+                                </a>
+                            </li>
+                            <li class="nav-item mt-auto">
+                                <form th:action="@{/logout}" method="post" class="d-inline">
+                                    <button type="submit" class="nav-link btn btn-link text-start p-0 w-100">
+                                        <i class="fas fa-sign-out-alt me-2"></i> Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10">
+                <main class="main-content">
+                    <!-- Page Header -->
+                    <div class="page-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h1 class="h2 mb-2">Dashboard</h1>
+                                <p class="mb-0 opacity-75">Track your expenses and manage your budget effectively</p>
+                            </div>
+                            <div class="text-end">
+                                <span class="welcome-text">Welcome, 
+                                    <span th:text="${username}">User</span>!
+                                </span>
+                                <div class="small opacity-75 mt-1" th:text="${currentMonth}">September 2025</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stats Cards -->
+                    <div class="row mb-4">
+                        <div class="col-xl-3 col-lg-6 col-md-6 fade-in-up">
+                            <div class="stats-card">
+                                <div class="stats-icon primary-icon">
+                                    <i class="fas fa-dollar-sign text-white"></i>
+                                </div>
+                                <h3 class="mb-1" th:text="'$' + ${totalExpenses ?: '0'}">$0</h3>
+                                <p class="text-muted mb-0">Total Spent This Month</p>
+                                <small class="text-success">
+                                    <i class="fas fa-arrow-down me-1"></i>Track your spending
+                                </small>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-6 col-md-6 fade-in-up" style="animation-delay: 0.1s;">
+                            <div class="stats-card">
+                                <div class="stats-icon success-icon">
+                                    <i class="fas fa-piggy-bank text-white"></i>
+                                </div>
+                                <h3 class="mb-1" th:text="'$' + ${budgetRemaining ?: '0'}">$0</h3>
+                                <p class="text-muted mb-0">Budget Remaining</p>
+                                <small class="text-info">
+                                    <i class="fas fa-info-circle me-1"></i>Set budgets to track
+                                </small>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-6 col-md-6 fade-in-up" style="animation-delay: 0.2s;">
+                            <div class="stats-card">
+                                <div class="stats-icon warning-icon">
+                                    <i class="fas fa-credit-card text-white"></i>
+                                </div>
+                                <h3 class="mb-1" th:text="${transactionCount ?: '0'}">0</h3>
+                                <p class="text-muted mb-0">Transactions This Month</p>
+                                <small class="text-success">
+                                    <i class="fas fa-plus me-1"></i>Add more expenses
+                                </small>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-6 col-md-6 fade-in-up" style="animation-delay: 0.3s;">
+                            <div class="stats-card">
+                                <div class="stats-icon danger-icon">
+                                    <i class="fas fa-chart-line text-white"></i>
+                                </div>
+                                <h3 class="mb-1" th:text="'$' + ${averageExpense ?: '0'}">$0</h3>
+                                <p class="text-muted mb-0">Average Expense</p>
+                                <small class="text-info">
+                                    <i class="fas fa-calculator me-1"></i>Based on your data
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Recent Expenses -->
+                        <div class="col-lg-8 mb-4">
+                            <div class="stats-card">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="mb-0">Recent Expenses</h5>
+                                    <a th:href="@{/expenses/add}" class="btn btn-sm btn-gradient">
+                                        <i class="fas fa-plus me-1"></i>Add Expense
+                                    </a>
+                                </div>
+                                <div class="expense-list">
+                                    <!-- Dynamic expense list -->
+                                    <div th:if="${expenses != null and !expenses.isEmpty()}">
+                                        <div th:each="expense : ${expenses}" class="expense-item d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <div class="stats-icon primary-icon me-3" style="width: 40px; height: 40px; font-size: 1rem;">
+                                                    <i class="fas fa-receipt text-white"></i>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-1" th:text="${expense.description}">Expense Description</h6>
+                                                    <small class="text-muted" th:text="${expense.category?.name + ' • ' + #temporals.format(expense.date, 'MMM dd, yyyy')}">Category • Date</small>
+                                                </div>
+                                            </div>
+                                            <div class="text-end">
+                                                <h6 class="mb-0 text-danger" th:text="'-$' + ${expense.amount}">-$0.00</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Empty state -->
+                                    <div th:if="${expenses == null or expenses.isEmpty()}" class="text-center py-4">
+                                        <i class="fas fa-receipt fa-3x text-muted mb-3"></i>
+                                        <h6 class="text-muted">No expenses yet</h6>
+                                        <p class="text-muted small">Start tracking your expenses by adding your first transaction</p>
+                                    </div>
+                                </div>
+                                <div class="text-center mt-3" th:if="${expenses != null and !expenses.isEmpty()}">
+                                    <a th:href="@{/expenses}" class="btn btn-outline-light btn-sm">View All Expenses</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Category Chart -->
+                        <div class="col-lg-4 mb-4">
+                            <div class="chart-container">
+                                <h5 class="mb-3">Spending by Category</h5>
+                                <canvas id="categoryChart" width="300" height="250"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="stats-card">
+                                <h5 class="mb-3">Quick Actions</h5>
+                                <div class="row">
+                                    <div class="col-md-3 col-6 mb-2">
+                                        <a th:href="@{/expenses/add}" class="btn btn-gradient w-100">
+                                            <i class="fas fa-plus me-2"></i>Add Expense
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 col-6 mb-2">
+                                        <a th:href="@{/budgets/add}" class="btn btn-outline-light w-100">
+                                            <i class="fas fa-chart-pie me-2"></i>Create Budget
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 col-6 mb-2">
+                                        <a th:href="@{/reports}" class="btn btn-outline-light w-100">
+                                            <i class="fas fa-chart-bar me-2"></i>View Reports
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 col-6 mb-2">
+                                        <a th:href="@{/settings}" class="btn btn-outline-light w-100">
+                                            <i class="fas fa-cog me-2"></i>Settings
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script th:inline="javascript">
+        // Mobile sidebar toggle
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            sidebar.classList.toggle('show');
+            overlay.classList.toggle('show');
+        }
+
+        // Get category data from Thymeleaf
+        const categoryData = /*[[${categoryData}]]*/ [];
+        const categoryLabels = [];
+        const categoryValues = [];
+        const categoryColors = [
+            'rgba(102, 126, 234, 0.8)',
+            'rgba(79, 172, 254, 0.8)',
+            'rgba(250, 112, 154, 0.8)',
+            'rgba(254, 225, 64, 0.8)',
+            'rgba(255, 154, 158, 0.8)',
+            'rgba(118, 75, 162, 0.8)'
+        ];
+
+        // Process category data
+        if (categoryData && categoryData.length > 0) {
+            categoryData.forEach((item, index) => {
+                categoryLabels.push(item[0] || 'Other');
+                categoryValues.push(parseFloat(item[1]) || 0);
+            });
+        } else {
+            // Default data if no expenses
+            categoryLabels.push('No Data');
+            categoryValues.push(1);
+        }
+
+        // Chart.js setup
+        const ctx = document.getElementById('categoryChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: categoryLabels,
+                datasets: [{
+                    data: categoryValues,
+                    backgroundColor: categoryColors.slice(0, categoryValues.length),
+                    borderColor: categoryColors.slice(0, categoryValues.length).map(color => color.replace('0.8', '1')),
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            padding: 20,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
