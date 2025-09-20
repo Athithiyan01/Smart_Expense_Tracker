@@ -23,13 +23,14 @@ public class Budget {
     private String category;
     
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal amount;
+    private BigDecimal amount = BigDecimal.ZERO; // Default value
+    
+    // Changed from primitive int to Integer wrapper class to handle nulls
+    @Column(nullable = false)
+    private Integer month;
     
     @Column(nullable = false)
-    private int month;
-    
-    @Column(nullable = false)
-    private int year;
+    private Integer year;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -43,6 +44,17 @@ public class Budget {
 
     @PreUpdate
     public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+    
+    // Custom constructor for easier object creation
+    public Budget(String category, BigDecimal amount, Integer month, Integer year, User user) {
+        this.category = category;
+        this.amount = amount != null ? amount : BigDecimal.ZERO;
+        this.month = month;
+        this.year = year;
+        this.user = user;
+        this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
 }

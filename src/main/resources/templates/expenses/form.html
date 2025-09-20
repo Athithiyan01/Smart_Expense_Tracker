@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,70 +13,72 @@
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         .card {
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             border: none;
             border-radius: 15px;
             backdrop-filter: blur(10px);
         }
-        
+
         .card-header {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border-radius: 15px 15px 0 0 !important;
             padding: 20px 30px;
         }
-        
+
         .form-label {
             font-weight: 600;
             color: #495057;
             margin-bottom: 8px;
         }
-        
-        .form-control, .form-select {
+
+        .form-control,
+        .form-select {
             border-radius: 10px;
             border: 2px solid #e9ecef;
             padding: 12px 15px;
             transition: all 0.3s ease;
         }
-        
-        .form-control:focus, .form-select:focus {
+
+        .form-control:focus,
+        .form-select:focus {
             border-color: #667eea;
             box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
         }
-        
+
         .btn {
             border-radius: 10px;
             padding: 12px 25px;
             font-weight: 600;
             transition: all 0.3s ease;
         }
-        
+
         .btn-primary {
             background: linear-gradient(135deg, #667eea, #764ba2);
             border: none;
         }
-        
+
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
-        
+
         .btn-secondary {
             background: #6c757d;
             border: none;
         }
-        
+
         .btn-secondary:hover {
             background: #545b62;
             transform: translateY(-2px);
         }
-        
+
         .required {
             color: #dc3545;
         }
-        
+
         .expense-icon {
             width: 60px;
             height: 60px;
@@ -90,6 +93,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container mt-4 mb-4">
         <div class="row justify-content-center">
@@ -105,7 +109,7 @@
                         </h3>
                         <p class="mb-0 mt-2 opacity-90">Track and manage your financial transactions</p>
                     </div>
-                    
+
                     <div class="card-body p-4">
                         <form id="expenseForm">
                             <div class="row">
@@ -115,12 +119,8 @@
                                         <i class="fas fa-tag me-1"></i>
                                         Title <span class="required">*</span>
                                     </label>
-                                    <input type="text" 
-                                           class="form-control" 
-                                           id="title" 
-                                           name="title"
-                                           placeholder="Enter expense title"
-                                           required>
+                                    <input type="text" class="form-control" id="title" name="title"
+                                        placeholder="Enter expense title" required>
                                     <div class="invalid-feedback">
                                         Please provide a valid title.
                                     </div>
@@ -134,14 +134,8 @@
                                     </label>
                                     <div class="input-group">
                                         <span class="input-group-text">₹</span>
-                                        <input type="number" 
-                                               step="0.01" 
-                                               class="form-control" 
-                                               id="amount" 
-                                               name="amount"
-                                               placeholder="0.00"
-                                               min="0"
-                                               required>
+                                        <input type="number" step="0.01" class="form-control" id="amount" name="amount"
+                                            placeholder="0.00" min="0" required>
                                     </div>
                                     <div class="invalid-feedback">
                                         Please provide a valid amount.
@@ -179,11 +173,8 @@
                                         <i class="fas fa-calendar-alt me-1"></i>
                                         Transaction Date <span class="required">*</span>
                                     </label>
-                                    <input type="date" 
-                                           class="form-control" 
-                                           id="transactionDate" 
-                                           name="transactionDate"
-                                           required>
+                                    <input type="date" class="form-control" id="transactionDate" name="transactionDate"
+                                        required>
                                     <div class="invalid-feedback">
                                         Please provide a valid date.
                                     </div>
@@ -199,12 +190,8 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-check form-check-inline p-3 border rounded-3">
-                                            <input class="form-check-input" 
-                                                   type="radio" 
-                                                   name="transactionType" 
-                                                   id="expense" 
-                                                   value="EXPENSE"
-                                                   checked>
+                                            <input class="form-check-input" type="radio" name="transactionType"
+                                                id="expense" value="EXPENSE" checked>
                                             <label class="form-check-label w-100" for="expense">
                                                 <i class="fas fa-minus-circle text-danger me-2"></i>
                                                 <strong>Expense</strong>
@@ -214,11 +201,8 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-check form-check-inline p-3 border rounded-3">
-                                            <input class="form-check-input" 
-                                                   type="radio" 
-                                                   name="transactionType" 
-                                                   id="income" 
-                                                   value="INCOME">
+                                            <input class="form-check-input" type="radio" name="transactionType"
+                                                id="income" value="INCOME">
                                             <label class="form-check-label w-100" for="income">
                                                 <i class="fas fa-plus-circle text-success me-2"></i>
                                                 <strong>Income</strong>
@@ -235,19 +219,16 @@
                                     <i class="fas fa-comment-alt me-1"></i>
                                     Description
                                 </label>
-                                <textarea class="form-control" 
-                                          id="description" 
-                                          name="description"
-                                          rows="4" 
-                                          placeholder="Add any additional notes about this transaction..."></textarea>
+                                <textarea class="form-control" id="description" name="description" rows="4"
+                                    placeholder="Add any additional notes about this transaction..."></textarea>
                             </div>
 
                             <!-- Action Buttons -->
                             <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
-                                <button type="button" class="btn btn-secondary">
+                                <a href="/dashboard" class="btn btn-secondary">
                                     <i class="fas fa-arrow-left me-2"></i>
                                     Cancel
-                                </button>
+                                </a>
                                 <div>
                                     <button type="reset" class="btn btn-outline-secondary me-2">
                                         <i class="fas fa-redo me-2"></i>
@@ -303,64 +284,64 @@
     <script>
         // Set today's date as default
         document.getElementById('transactionDate').valueAsDate = new Date();
-        
+
         // Form validation
         const form = document.getElementById('expenseForm');
-        
-        form.addEventListener('submit', function(event) {
+
+        form.addEventListener('submit', function (event) {
             event.preventDefault();
-            
+
             if (form.checkValidity()) {
                 // Collect form data
                 const formData = new FormData(form);
                 const data = Object.fromEntries(formData);
-                
+
                 // Show success message
                 alert('Expense saved successfully!');
                 console.log('Form Data:', data);
-                
+
                 // Reset form
                 form.reset();
                 document.getElementById('transactionDate').valueAsDate = new Date();
                 document.getElementById('expense').checked = true;
             }
-            
+
             form.classList.add('was-validated');
         });
-        
+
         // Reset button functionality
-        document.querySelector('button[type="reset"]').addEventListener('click', function() {
+        document.querySelector('button[type="reset"]').addEventListener('click', function () {
             form.classList.remove('was-validated');
             setTimeout(() => {
                 document.getElementById('transactionDate').valueAsDate = new Date();
                 document.getElementById('expense').checked = true;
             }, 10);
         });
-        
+
         // Real-time amount formatting
-        document.getElementById('amount').addEventListener('input', function(e) {
+        document.getElementById('amount').addEventListener('input', function (e) {
             let value = parseFloat(e.target.value);
             if (!isNaN(value)) {
                 // Update summary (mock functionality)
                 updateSummary(value, document.querySelector('input[name="transactionType"]:checked').value);
             }
         });
-        
+
         // Transaction type change handler
         document.querySelectorAll('input[name="transactionType"]').forEach(radio => {
-            radio.addEventListener('change', function() {
+            radio.addEventListener('change', function () {
                 const amount = parseFloat(document.getElementById('amount').value) || 0;
                 updateSummary(amount, this.value);
             });
         });
-        
+
         function updateSummary(amount, type) {
             // This is a mock function for demonstration
             // In a real app, this would calculate based on stored data
             const expenseEl = document.querySelector('.text-danger h4');
             const incomeEl = document.querySelector('.text-success h4');
             const balanceEl = document.querySelector('.text-primary h4');
-            
+
             if (type === 'EXPENSE') {
                 expenseEl.textContent = `₹ ${amount.toFixed(2)}`;
                 balanceEl.textContent = `₹ ${(-amount).toFixed(2)}`;
@@ -371,4 +352,5 @@
         }
     </script>
 </body>
+
 </html>
