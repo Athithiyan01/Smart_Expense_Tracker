@@ -52,7 +52,7 @@ public class AdminService {
                 .map(e -> e.getUser().getId())
                 .collect(Collectors.toSet());
             
-            // Recent users
+            // Recent users - Handle null verification status safely
             List<User> recentUsers = userRepository.findAll().stream()
                 .sorted((u1, u2) -> u2.getCreatedAt().compareTo(u1.getCreatedAt()))
                 .limit(5)
@@ -76,7 +76,7 @@ public class AdminService {
             log.debug("Dashboard stats calculated successfully");
             return stats;
         } catch (Exception e) {
-            log.error("Error calculating dashboard stats: {}", e.getMessage());
+            log.error("Error calculating dashboard stats: {}", e.getMessage(), e);
             // Return empty stats in case of error
             stats.put("totalUsers", 0L);
             stats.put("totalExpenses", 0L);
@@ -92,9 +92,14 @@ public class AdminService {
     @Transactional(readOnly = true)
     public List<User> getAllUsers() {
         log.debug("Getting all users");
-        return userRepository.findAll().stream()
-                .sorted((u1, u2) -> u2.getCreatedAt().compareTo(u1.getCreatedAt()))
-                .collect(Collectors.toList());
+        try {
+            return userRepository.findAll().stream()
+                    .sorted((u1, u2) -> u2.getCreatedAt().compareTo(u1.getCreatedAt()))
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("Error getting all users: {}", e.getMessage(), e);
+            return Collections.emptyList();
+        }
     }
 
     @Transactional(readOnly = true)
@@ -106,32 +111,63 @@ public class AdminService {
 
     public void toggleUserStatus(Long id) {
         log.debug("Toggling user status for id: {}", id);
-        User user = getUserById(id);
-        user.setEmailVerified(!user.isEmailVerified());
-        userRepository.save(user);
-        log.info("User status toggled for: {}", user.getEmail());
+        try {
+            User user = getUserById(id);
+            
+            // Safe null handling for Boolean field
+            Boolean currentStatus = user.getEmailVerified();
+            if (currentStatus == null) {
+                user.setEmailVerified(true); // Set to verified if null
+                log.info("Setting null email verification status to true for user: {}", user.getEmail());
+            } else {
+                user.setEmailVerified(!currentStatus);
+                log.info("Toggling email verification from {} to {} for user: {}", 
+                    currentStatus, !currentStatus, user.getEmail());
+            }
+            
+            userRepository.save(user);
+            log.info("User status toggled successfully for: {}", user.getEmail());
+        } catch (Exception e) {
+            log.error("Error toggling user status for id {}: {}", id, e.getMessage(), e);
+            throw new RuntimeException("Failed to toggle user status: " + e.getMessage());
+        }
     }
 
     public void deleteUser(Long id) {
         log.debug("Deleting user with id: {}", id);
-        User user = getUserById(id);
-        if (user.getRole() == User.Role.ADMIN) {
-            throw new RuntimeException("Cannot delete admin user");
+        try {
+            User user = getUserById(id);
+            if (user.getRole() == User.Role.ADMIN) {
+                throw new RuntimeException("Cannot delete admin user");
+            }
+            userRepository.deleteById(id);
+            log.info("User deleted: {}", user.getEmail());
+        } catch (Exception e) {
+            log.error("Error deleting user with id {}: {}", id, e.getMessage(), e);
+            throw new RuntimeException("Failed to delete user: " + e.getMessage());
         }
-        userRepository.deleteById(id);
-        log.info("User deleted: {}", user.getEmail());
     }
 
     @Transactional(readOnly = true)
     public List<Expense> getUserExpenses(Long userId) {
         log.debug("Getting expenses for user: {}", userId);
-        return expenseRepository.findByUserIdOrderByTransactionDateDesc(userId);
+        try {
+            return expenseRepository.findByUserIdOrderByTransactionDateDesc(userId);
+        } catch (Exception e) {
+            log.error("Error getting expenses for user {}: {}", userId, e.getMessage(), e);
+            return Collections.emptyList();
+        }
     }
 
     @Transactional(readOnly = true)
     public List<Budget> getUserBudgets(Long userId) {
         log.debug("Getting budgets for user: {}", userId);
-        return budgetRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        try {
+            return budgetRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        } catch (Exception e) {
+            log.error("Error getting budgets for user {}: {}", userId, e.getMessage(), e);
+            return Collections.emptyList();
+        }
     }
 
     @Transactional(readOnly = true)
@@ -164,7 +200,7 @@ public class AdminService {
             
             return stats;
         } catch (Exception e) {
-            log.error("Error calculating user stats for user {}: {}", userId, e.getMessage());
+            log.error("Error calculating user stats for user {}: {}", userId, e.getMessage(), e);
             stats.put("totalExpenses", BigDecimal.ZERO);
             stats.put("totalIncome", BigDecimal.ZERO);
             stats.put("currentMonthExpenses", BigDecimal.ZERO);
@@ -198,7 +234,7 @@ public class AdminService {
             
             return reports;
         } catch (Exception e) {
-            log.error("Error generating reports: {}", e.getMessage());
+            log.error("Error generating reports: {}", e.getMessage(), e);
             reports.put("userGrowth", Collections.emptyMap());
             reports.put("expenseTrends", Collections.emptyMap());
             reports.put("topCategories", Collections.emptyMap());
@@ -210,15 +246,20 @@ public class AdminService {
     @Transactional(readOnly = true)
     public String exportReport(String type) {
         log.debug("Exporting report of type: {}", type);
-        switch (type.toLowerCase()) {
-            case "users":
-                return exportUsersReport();
-            case "expenses":
-                return exportExpensesReport();
-            case "budgets":
-                return exportBudgetsReport();
-            default:
-                return "Invalid report type";
+        try {
+            switch (type.toLowerCase()) {
+                case "users":
+                    return exportUsersReport();
+                case "expenses":
+                    return exportExpensesReport();
+                case "budgets":
+                    return exportBudgetsReport();
+                default:
+                    return "Invalid report type";
+            }
+        } catch (Exception e) {
+            log.error("Error exporting {} report: {}", type, e.getMessage(), e);
+            return "Error generating " + type + " report: " + e.getMessage();
         }
     }
 
@@ -250,7 +291,7 @@ public class AdminService {
             
             return info;
         } catch (Exception e) {
-            log.error("Error getting system info: {}", e.getMessage());
+            log.error("Error getting system info: {}", e.getMessage(), e);
             return Collections.emptyMap();
         }
     }
@@ -284,7 +325,7 @@ public class AdminService {
             log.info("System cleanup completed successfully. Cleaned {} verification tokens and {} reset tokens", 
                     usersWithOldTokens.size(), usersWithExpiredResetTokens.size());
         } catch (Exception e) {
-            log.error("Error during system cleanup: {}", e.getMessage());
+            log.error("Error during system cleanup: {}", e.getMessage(), e);
             throw new RuntimeException("System cleanup failed: " + e.getMessage());
         }
     }
@@ -308,7 +349,7 @@ public class AdminService {
                 monthlyStats.put(key, monthTotal);
             }
         } catch (Exception e) {
-            log.error("Error calculating monthly stats: {}", e.getMessage());
+            log.error("Error calculating monthly stats: {}", e.getMessage(), e);
         }
         
         return monthlyStats;
@@ -326,7 +367,7 @@ public class AdminService {
                     Collectors.reducing(BigDecimal.ZERO, Expense::getAmount, BigDecimal::add)
                 ));
         } catch (Exception e) {
-            log.error("Error calculating category stats: {}", e.getMessage());
+            log.error("Error calculating category stats: {}", e.getMessage(), e);
             return Collections.emptyMap();
         }
     }
@@ -347,7 +388,7 @@ public class AdminService {
                 growth.put(key, count);
             }
         } catch (Exception e) {
-            log.error("Error calculating user growth: {}", e.getMessage());
+            log.error("Error calculating user growth: {}", e.getMessage(), e);
         }
         
         return growth;
@@ -383,7 +424,7 @@ public class AdminService {
             health.put("memoryStatus", memoryUsagePercent > 80 ? "Warning" : "Good");
             
         } catch (Exception e) {
-            log.error("Error checking system health: {}", e.getMessage());
+            log.error("Error checking system health: {}", e.getMessage(), e);
             health.put("databaseStatus", "Error: " + e.getMessage());
             health.put("memoryUsage", "Unknown");
             health.put("memoryStatus", "Error");
@@ -405,13 +446,13 @@ public class AdminService {
                    .append(csvEscape(user.getFirstName())).append(",")
                    .append(csvEscape(user.getLastName())).append(",")
                    .append(user.getRole()).append(",")
-                   .append(user.isEmailVerified()).append(",")
+                   .append(user.isEmailVerified()).append(",") // This now safely handles nulls
                    .append(user.getCreatedAt()).append("\n");
             }
             
             return csv.toString();
         } catch (Exception e) {
-            log.error("Error exporting users report: {}", e.getMessage());
+            log.error("Error exporting users report: {}", e.getMessage(), e);
             return "Error generating users report: " + e.getMessage();
         }
     }
@@ -437,7 +478,7 @@ public class AdminService {
             
             return csv.toString();
         } catch (Exception e) {
-            log.error("Error exporting expenses report: {}", e.getMessage());
+            log.error("Error exporting expenses report: {}", e.getMessage(), e);
             return "Error generating expenses report: " + e.getMessage();
         }
     }
@@ -461,7 +502,7 @@ public class AdminService {
             
             return csv.toString();
         } catch (Exception e) {
-            log.error("Error exporting budgets report: {}", e.getMessage());
+            log.error("Error exporting budgets report: {}", e.getMessage(), e);
             return "Error generating budgets report: " + e.getMessage();
         }
     }
